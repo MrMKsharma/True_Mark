@@ -1,0 +1,11 @@
+C:\Users\DELL\Downloads\blockchain1\aptos-core\target\debug\deps\libgetrandom-d0fb4656369e2a92.rmeta: C:\Users\DELL\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.11\src\lib.rs C:\Users\DELL\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.11\src\error.rs C:\Users\DELL\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.11\src\util.rs C:\Users\DELL\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.11\src\error_impls.rs C:\Users\DELL\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.11\src\windows.rs
+
+C:\Users\DELL\Downloads\blockchain1\aptos-core\target\debug\deps\libgetrandom-d0fb4656369e2a92.rlib: C:\Users\DELL\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.11\src\lib.rs C:\Users\DELL\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.11\src\error.rs C:\Users\DELL\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.11\src\util.rs C:\Users\DELL\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.11\src\error_impls.rs C:\Users\DELL\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.11\src\windows.rs
+
+C:\Users\DELL\Downloads\blockchain1\aptos-core\target\debug\deps\getrandom-d0fb4656369e2a92.d: C:\Users\DELL\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.11\src\lib.rs C:\Users\DELL\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.11\src\error.rs C:\Users\DELL\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.11\src\util.rs C:\Users\DELL\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.11\src\error_impls.rs C:\Users\DELL\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.11\src\windows.rs
+
+C:\Users\DELL\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.11\src\lib.rs:
+C:\Users\DELL\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.11\src\error.rs:
+C:\Users\DELL\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.11\src\util.rs:
+C:\Users\DELL\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.11\src\error_impls.rs:
+C:\Users\DELL\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.11\src\windows.rs:

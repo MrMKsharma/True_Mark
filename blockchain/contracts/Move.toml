@@ -1,0 +1,10 @@
+[package]
+name = "product_registry"
+version = "1.0.0"
+authors = ["True-Mark Team"]
+
+[addresses]
+product_registry = "0x43926c2214053d630d809323c15df2ac6990a92ff503b4238f2ff0aacd759a4f"
+
+[dependencies]
+AptosFramework = { git = "https://github.com/aptos-labs/aptos-core.git", subdir = "aptos-move/framework/aptos-framework/", rev = "devnet" }
