@@ -1,25 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import { 
-  Container, 
   Box, 
-  Typography, 
-  TextField, 
   Button, 
-  Paper,
-  CircularProgress,
-  Alert,
-  AppBar,
-  Toolbar,
-  useTheme,
-  useMediaQuery,
-  Fade,
-  Grow,
+  Container, 
   IconButton,
-  Card,
-  CardContent,
-  Divider,
-  Tooltip,
-  Chip
+  Paper,
+  TextField,
+  Typography
 } from '@mui/material';
 import { AptosClient } from 'aptos';
 import VerifiedIcon from '@mui/icons-material/Verified';
@@ -59,15 +46,6 @@ interface ProductResult {
   serialNumber: string;
 }
 
-interface BlockchainResponse {
-  data: {
-    manufacturer: string;
-    creation_time: number;
-    name: string;
-    is_authentic: boolean;
-  };
-}
-
 interface QRCodeData {
   id: string;
   name: string;
@@ -78,62 +56,45 @@ interface QRCodeData {
 
 function App() {
   const [productId, setProductId] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [isBlockchainConnected, setIsBlockchainConnected] = useState(false);
-  const [networkStatus, setNetworkStatus] = useState<'checking' | 'connected' | 'disconnected'>('checking');
   const [result, setResult] = useState<ProductResult | null>(null);
   const [error, setError] = useState('');
   const [showScanner, setShowScanner] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
   const maxRetries = 3;
 
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-
   const checkBlockchainConnection = useCallback(async () => {
     try {
-      setNetworkStatus('checking');
       const ledgerInfo = await client.getLedgerInfo();
       if (ledgerInfo) {
-        setIsBlockchainConnected(true);
-        setNetworkStatus('connected');
         setRetryCount(0); // Reset retry count on successful connection
         return true;
       }
-      throw new Error('No ledger info received');
+      return false;
     } catch (error) {
       console.error('Blockchain connection failed:', error);
-      setIsBlockchainConnected(false);
-      setNetworkStatus('disconnected');
       
       // Implement retry logic
       if (retryCount < maxRetries) {
-        const nextRetry = retryCount + 1;
-        setRetryCount(nextRetry);
-        console.log(`Retrying connection (${nextRetry}/${maxRetries})...`);
-        // Exponential backoff: 2^retry * 1000ms (1s, 2s, 4s)
-        setTimeout(() => checkBlockchainConnection(), Math.pow(2, retryCount) * 1000);
+        setRetryCount(prev => prev + 1);
+        setTimeout(() => {
+          checkBlockchainConnection();
+        }, 5000); // Wait 5 seconds before retrying
       }
-      
       return false;
     }
   }, [retryCount]);
 
-  // Initial connection check
   useEffect(() => {
     checkBlockchainConnection();
   }, [checkBlockchainConnection]);
 
-  // Set up periodic connection check
   useEffect(() => {
     const intervalId = setInterval(() => {
-      if (networkStatus !== 'checking') {
-        checkBlockchainConnection();
-      }
+      checkBlockchainConnection();
     }, 30000); // Check every 30 seconds
 
     return () => clearInterval(intervalId);
-  }, [checkBlockchainConnection, networkStatus]);
+  }, [checkBlockchainConnection]);
 
   useEffect(() => {
     let scanner: any = null;
@@ -205,7 +166,6 @@ function App() {
       return;
     }
 
-    setLoading(true);
     setError('');
     setResult(null);
 
@@ -216,7 +176,7 @@ function App() {
       }
 
       // In development, use mock data
-      if (process.env.NODE_ENV === 'development') {
+      if (import.meta.env.DEV) {
         const mockResult: ProductResult = {
           isAuthentic: true,
           manufacturer: "Authentic Manufacturer",
@@ -257,8 +217,6 @@ function App() {
       console.error('Verification error:', err);
       setError(err instanceof Error ? err.message : 'Unable to verify product at this time. Please try again later.');
       setResult(null);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -316,168 +274,144 @@ function App() {
 
   return (
     <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <AppBar position="static" sx={{ 
+      <Box sx={{ 
         background: 'linear-gradient(45deg, #1976d2 30%, #2196f3 90%)',
         boxShadow: '0 3px 5px 2px rgba(33, 150, 243, .3)'
       }}>
-        <Toolbar>
+        <Box sx={{ p: 2 }}>
           <SecurityIcon sx={{ mr: 2, fontSize: 28 }} />
           <Typography variant="h5" component="div" sx={{ flexGrow: 1, fontWeight: 600 }}>
             Product Verification System
           </Typography>
-          <Chip
-            label={networkStatus === 'connected' ? 'Blockchain Connected' : 
-                  networkStatus === 'checking' ? 'Checking Connection...' : 
-                  'Blockchain Disconnected'}
-            color={networkStatus === 'connected' ? 'success' : 
-                  networkStatus === 'checking' ? 'warning' : 
-                  'error'}
-            size="small"
-            sx={{ ml: 2 }}
-          />
-        </Toolbar>
-      </AppBar>
+        </Box>
+      </Box>
 
       <Container maxWidth="sm" sx={{ mt: 6, mb: 4, flex: 1 }}>
-        <Grow in timeout={1000}>
-          <Card 
-            elevation={8} 
-            sx={{ 
-              borderRadius: 4,
-              background: 'rgba(255, 255, 255, 0.9)',
-              backdropFilter: 'blur(10px)',
-              transition: 'transform 0.3s ease-in-out',
-              '&:hover': {
-                transform: 'translateY(-5px)'
-              }
-            }}
-          >
-            <CardContent sx={{ p: 4 }}>
-              <Box sx={{ textAlign: 'center', mb: 4 }}>
-                <Typography variant="h4" component="h1" gutterBottom sx={{ fontWeight: 700, color: '#1976d2' }}>
-                  Verify Your Product
-                </Typography>
-                <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
-                  Enter the product ID to verify its authenticity on the blockchain
-                </Typography>
-              </Box>
+        <Paper 
+          elevation={8} 
+          sx={{ 
+            borderRadius: 4,
+            background: 'rgba(255, 255, 255, 0.9)',
+            backdropFilter: 'blur(10px)',
+            transition: 'transform 0.3s ease-in-out',
+            '&:hover': {
+              transform: 'translateY(-5px)'
+            }
+          }}
+        >
+          <Box sx={{ p: 4 }}>
+            <Box sx={{ textAlign: 'center', mb: 4 }}>
+              <Typography variant="h4" component="h1" gutterBottom sx={{ fontWeight: 700, color: '#1976d2' }}>
+                Verify Your Product
+              </Typography>
+              <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
+                Enter the product ID to verify its authenticity on the blockchain
+              </Typography>
+            </Box>
 
-              <Box sx={{ display: 'flex', gap: 1, mb: 3 }}>
-                <TextField
-                  label="Enter Product ID"
-                  variant="outlined"
-                  fullWidth
-                  value={productId}
-                  onChange={(e) => setProductId(e.target.value)}
-                  disabled={loading}
-                  error={Boolean(error)}
-                  helperText={error}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: 2,
-                      '&:hover fieldset': {
-                        borderColor: '#1976d2',
-                      },
-                    },
-                  }}
-                />
-                <Tooltip title="Scan QR Code">
-                  <IconButton 
-                    color="primary" 
-                    onClick={handleScanQR}
-                    disabled={loading}
-                    sx={{ 
-                      bgcolor: 'rgba(25, 118, 210, 0.1)',
-                      '&:hover': {
-                        bgcolor: 'rgba(25, 118, 210, 0.2)',
-                      }
-                    }}
-                  >
-                    <QrCodeScannerIcon />
-                  </IconButton>
-                </Tooltip>
-              </Box>
-
-              <Button
-                variant="contained"
-                size="large"
-                onClick={handleVerify}
-                disabled={loading || !productId.trim()}
+            <Box sx={{ display: 'flex', gap: 1, mb: 3 }}>
+              <TextField
+                label="Enter Product ID"
+                variant="outlined"
                 fullWidth
+                value={productId}
+                onChange={(e) => setProductId(e.target.value)}
+                error={Boolean(error)}
+                helperText={error}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 2,
+                    '&:hover fieldset': {
+                      borderColor: '#1976d2',
+                    },
+                  },
+                }}
+              />
+              <IconButton 
+                color="primary" 
+                onClick={handleScanQR}
                 sx={{ 
-                  py: 1.5,
-                  borderRadius: 2,
-                  background: 'linear-gradient(45deg, #1976d2 30%, #2196f3 90%)',
-                  boxShadow: '0 3px 5px 2px rgba(33, 150, 243, .3)',
-                  transition: 'all 0.3s ease-in-out',
+                  bgcolor: 'rgba(25, 118, 210, 0.1)',
                   '&:hover': {
-                    transform: 'scale(1.02)',
-                    boxShadow: '0 6px 10px 4px rgba(33, 150, 243, .3)',
+                    bgcolor: 'rgba(25, 118, 210, 0.2)',
                   }
                 }}
               >
-                {loading ? (
-                  <CircularProgress size={24} color="inherit" />
-                ) : (
-                  'Verify Product'
-                )}
-              </Button>
+                <QrCodeScannerIcon />
+              </IconButton>
+            </Box>
 
-              {result && (
-                <Fade in timeout={1000}>
-                  <Paper 
-                    elevation={3} 
-                    sx={{ 
-                      p: 3, 
-                      mt: 3, 
-                      bgcolor: result.isAuthentic ? 'rgba(232, 245, 233, 0.9)' : 'rgba(255, 235, 238, 0.9)',
-                      borderRadius: 3,
-                      transition: 'all 0.3s ease-in-out',
-                      '&:hover': {
-                        transform: 'scale(1.02)',
-                      }
-                    }}
-                  >
-                    <Box 
-                      sx={{ 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        gap: 2, 
-                        mb: 2 
-                      }}
-                    >
-                      {result.isAuthentic ? (
-                        <VerifiedIcon sx={{ fontSize: 48, color: '#2e7d32' }} />
-                      ) : (
-                        <GppBadIcon sx={{ fontSize: 48, color: '#d32f2f' }} />
-                      )}
-                      <Typography variant="h5" sx={{ fontWeight: 600 }}>
-                        {result.isAuthentic ? 'Authentic Product' : 'Counterfeit Product'}
-                      </Typography>
-                    </Box>
+            <Button
+              variant="contained"
+              size="large"
+              onClick={handleVerify}
+              disabled={!productId.trim()}
+              fullWidth
+              sx={{ 
+                py: 1.5,
+                borderRadius: 2,
+                background: 'linear-gradient(45deg, #1976d2 30%, #2196f3 90%)',
+                boxShadow: '0 3px 5px 2px rgba(33, 150, 243, .3)',
+                transition: 'all 0.3s ease-in-out',
+                '&:hover': {
+                  transform: 'scale(1.02)',
+                  boxShadow: '0 6px 10px 4px rgba(33, 150, 243, .3)',
+                }
+              }}
+            >
+              Verify Product
+            </Button>
 
-                    <Divider sx={{ my: 2 }} />
+            {result && (
+              <Box 
+                component={Paper}
+                sx={{ 
+                  p: 3, 
+                  mt: 3, 
+                  bgcolor: result.isAuthentic ? 'rgba(232, 245, 233, 0.9)' : 'rgba(255, 235, 238, 0.9)',
+                  borderRadius: 3,
+                  transition: 'all 0.3s ease-in-out',
+                  '&:hover': {
+                    transform: 'scale(1.02)',
+                  }
+                }}
+              >
+                <Box 
+                  sx={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: 2, 
+                    mb: 2 
+                  }}
+                >
+                  {result.isAuthentic ? (
+                    <VerifiedIcon sx={{ fontSize: 48, color: '#2e7d32' }} />
+                  ) : (
+                    <GppBadIcon sx={{ fontSize: 48, color: '#d32f2f' }} />
+                  )}
+                  <Typography variant="h5" sx={{ fontWeight: 600 }}>
+                    {result.isAuthentic ? 'Authentic Product' : 'Counterfeit Product'}
+                  </Typography>
+                </Box>
 
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-                      <Typography variant="body1">
-                        <strong>Product Name:</strong> {result.productName}
-                      </Typography>
-                      <Typography variant="body1">
-                        <strong>Serial Number:</strong> {result.serialNumber}
-                      </Typography>
-                      <Typography variant="body1">
-                        <strong>Manufacturer:</strong> {result.manufacturer}
-                      </Typography>
-                      <Typography variant="body1">
-                        <strong>Manufacturing Date:</strong> {result.creationTime}
-                      </Typography>
-                    </Box>
-                  </Paper>
-                </Fade>
-              )}
-            </CardContent>
-          </Card>
-        </Grow>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                  <Typography variant="body1">
+                    <strong>Product Name:</strong> {result.productName}
+                  </Typography>
+                  <Typography variant="body1">
+                    <strong>Serial Number:</strong> {result.serialNumber}
+                  </Typography>
+                  <Typography variant="body1">
+                    <strong>Manufacturer:</strong> {result.manufacturer}
+                  </Typography>
+                  <Typography variant="body1">
+                    <strong>Manufacturing Date:</strong> {result.creationTime}
+                  </Typography>
+                </Box>
+              </Box>
+            )}
+          </Box>
+        </Paper>
 
         <Box sx={{ 
           width: '100%',
